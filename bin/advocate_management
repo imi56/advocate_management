@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+require_relative './../src/advocate_manager'
+class AdvocateManagement
+	OPTION_ACTION_MAPPING = {
+		"1" => "add_advocate",
+		"2" => "add_junior_advocate",
+		"3" => "add_advocate_state",
+		"4" => "add_advocate_case",
+		"5" => "reject_case",
+		"6" => "display_all_advocates",
+		"7" => "display_all_advocates",
+	}
+  def get_input
+	  begin
+			puts "\n1. Add an advocate\n2. Add junior advocates\n3. Add state for advocate\n4. Add cases for advocate\n5. Reject a case\n6. Display all advocates\n7. Display all cases under a state\n8. Exit"
+			print "Choose the option number from above options: "
+			option = gets.strip
+			return if option.to_i > 7
+	    process_commands(option)
+	  end
+	end
+
+	def process_commands(option)
+		command_name = AdvocateManagement::OPTION_ACTION_MAPPING[option]
+		@advocate_manager ||= AdvocateManager.new
+		@advocate_manager.send(command_name)
+		get_input
+	end
+end
+AdvocateManagement.new.get_input
