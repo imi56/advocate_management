@@ -15,7 +15,11 @@ class AdvocateManagement
 			puts "\n1. Add an advocate\n2. Add junior advocates\n3. Add state for advocate\n4. Add cases for advocate\n5. Reject a case\n6. Display all advocates\n7. Display all cases under a state\n8. Exit"
 			print "Choose the option number from above options: "
 			option = gets.strip
-			return if option.to_i > 7
+			puts
+			if option.to_i > 8
+				puts "Invalid option"
+				get_input
+			end
 	    process_commands(option)
 	  end
 	end
