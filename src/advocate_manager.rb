@@ -1,5 +1,6 @@
 require 'byebug'
 require_relative './advocate'
+require_relative './advocate_case'
 
 
 class AdvocateManager
@@ -9,40 +10,49 @@ class AdvocateManager
   end
 
   def add_advocate
-    print "Enter advocate to be added: "
-    advocate_name = gets.strip
-    self.advocates << Advocate.new(advocate_name)
-    puts "\n*** Advocate #{advocate_name} added ***"
+    print "Enter advocate id to be added: "
+    advocate_id = gets.strip
+    self.advocates << Advocate.new(advocate_id)
+    puts "\n*** Advocate #{advocate_id} added ***"
   end
 
   def add_junior_advocate
-    print "Enter senior advocate name: "
-    sr_adv_name = gets.strip
-    sr_adv = find_sr_advocate(sr_adv_name)
-    puts "No such senior advocate found" and return if sr_adv.nil?
-    print "\nEnter junior advocate name: "
-    jr_adv_name = gets.strip
-    self.advocates << Advocate.new(jr_adv_name, sr_adv.name)
-    puts "Advocate #{jr_adv_name} added under #{sr_adv_name}"
+    print "Enter senior advocate id: "
+    sr_adv_id = gets.strip
+    sr_adv = find_sr_advocate(sr_adv_id)
+    if sr_adv.nil?
+      puts "No such senior advocate found"
+      return 
+    end
+    print "\nEnter junior advocate id: "
+    jr_adv_id = gets.strip
+    self.advocates << Advocate.new(jr_adv_id, sr_adv.id)
+    puts "Advocate #{jr_adv_id} added under #{sr_adv_id}"
   end
 
   def add_advocate_state
-    print "\nEnter your name: "
-    adv_name = gets.strip
-    sr_adv = find_sr_advocate(adv_name)
+    print "\nEnter your id: "
+    adv_id = gets.strip
+    sr_adv = find_sr_advocate(adv_id)
     # if adv is sr then its sr_advocate attr should be nil
     if sr_adv.nil?
-      jr_adv = find_jr_advocate(adv_name)
-      puts "No such junior advocate found #{adv_name}" and return if jr_adv.nil?
+      jr_adv = find_jr_advocate(adv_id)
+      if jr_adv.nil?
+        puts "No such junior advocate found #{adv_id}"
+        return 
+      end
       puts "Only senior advocate can add practicing state"
-      print "\nEnter your senior advocate name: "
+      print "\nEnter your senior advocate id: "
       sr_adv = find_sr_advocate(gets.strip)
-      puts "No such senior advocate found" and return if sr_adv.nil?
+      if sr_adv.nil?
+        puts "No such senior advocate found"
+        return 
+      end
     end
     print "\nEnter practicing state: "
     state = gets.strip
     sr_adv.add_practicing_state(state, jr_adv)
-    puts "\nState #{state} added for #{jr_adv.nil? ? sr_adv.name : jr_adv.name }"
+    puts "\nState #{state} added for #{jr_adv.nil? ? sr_adv.id : jr_adv.id }"
   end
 
   def add_advocate_case
@@ -68,19 +78,19 @@ class AdvocateManager
 
   private
 
-  def find_sr_advocate(adv_name)
-    advs = @advocates.select { |adv| adv.name.downcase == adv_name.downcase && adv.sr_advocate.nil? }
+  def find_sr_advocate(adv_id)
+    advs = @advocates.select { |adv| adv.id.downcase == adv_id.downcase && adv.sr_advocate.nil? }
     if advs.size > 1
-      puts "Duplicate advocates found with name #{adv_name}\nexiting..."
+      puts "Duplicate advocates found with id #{adv_id}\nexiting..."
       exit
     end
     advs.first
   end
 
-  def find_jr_advocate(adv_name)
-    advs = @advocates.select { |adv| adv.name.downcase == adv_name.downcase && !adv.sr_advocate.nil? }
+  def find_jr_advocate(adv_id)
+    advs = @advocates.select { |adv| adv.id.downcase == adv_id.downcase && !adv.sr_advocate.nil? }
     if advs.size > 1
-      puts "Duplicate advocates found with name #{adv_name}\nexiting..."
+      puts "Duplicate advocates found with id #{adv_id}\nexiting..."
       exit
     end
     advs.first
