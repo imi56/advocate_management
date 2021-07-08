@@ -19,6 +19,7 @@ class AdvocateManager
     print "Enter senior advocate name: "
     sr_adv_name = gets.strip
     sr_adv = find_sr_advocate(sr_adv_name)
+    puts "No such senior advocate found" and return if sr_adv.nil?
     print "\nEnter junior advocate name: "
     jr_adv_name = gets.strip
     self.advocates << Advocate.new(jr_adv_name, sr_adv.name)
@@ -26,6 +27,22 @@ class AdvocateManager
   end
 
   def add_advocate_state
+    print "\nEnter your name: "
+    adv_name = gets.strip
+    sr_adv = find_sr_advocate(adv_name)
+    # if adv is sr then its sr_advocate attr should be nil
+    if sr_adv.nil?
+      jr_adv = find_jr_advocate(adv_name)
+      puts "No such junior advocate found #{adv_name}" and return if jr_adv.nil?
+      puts "Only senior advocate can add practicing state"
+      print "\nEnter your senior advocate name: "
+      sr_adv = find_sr_advocate(gets.strip)
+      puts "No such senior advocate found" and return if sr_adv.nil?
+    end
+    print "\nEnter practicing state: "
+    state = gets.strip
+    sr_adv.add_practicing_state(state, jr_adv)
+    puts "\nState #{state} added for #{jr_adv.nil? ? sr_adv.name : jr_adv.name }"
   end
 
   def add_advocate_case
@@ -49,14 +66,21 @@ class AdvocateManager
   def display_all_cases_in_state(state)
   end
 
+  private
+
   def find_sr_advocate(adv_name)
-    advs = @advocates.select { |adv| adv.name == adv_name && adv.sr_advocate.nil? }
+    advs = @advocates.select { |adv| adv.name.downcase == adv_name.downcase && adv.sr_advocate.nil? }
     if advs.size > 1
       puts "Duplicate advocates found with name #{adv_name}\nexiting..."
       exit
     end
-    if advs.size == 0
-      puts "No senior such advocate found\nexiting..."
+    advs.first
+  end
+
+  def find_jr_advocate(adv_name)
+    advs = @advocates.select { |adv| adv.name.downcase == adv_name.downcase && !adv.sr_advocate.nil? }
+    if advs.size > 1
+      puts "Duplicate advocates found with name #{adv_name}\nexiting..."
       exit
     end
     advs.first
