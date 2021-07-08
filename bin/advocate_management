@@ -16,7 +16,8 @@ class AdvocateManagement
 			print "Choose the option number from above options: "
 			option = gets.strip
 			puts
-			if option.to_i > 8
+			return if option.to_i == 8
+			if option.to_i > 7
 				puts "Invalid option"
 				get_input
 			end
