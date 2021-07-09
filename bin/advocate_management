@@ -8,7 +8,7 @@ class AdvocateManagement
 		"4" => "add_advocate_case",
 		"5" => "reject_case",
 		"6" => "display_all_advocates",
-		"7" => "display_all_advocates",
+		"7" => "display_all_cases_in_state",
 	}
   def get_input
 	  begin

@@ -12,7 +12,12 @@ class AdvocateManager
   def add_advocate
     print "Enter advocate id to be added: "
     advocate_id = gets.strip
-    self.advocates << Advocate.new(advocate_id)
+    new_adv = Advocate.new(advocate_id)
+    if advocates.any? { |adv| adv.id == new_adv.id }
+      puts "#{advocate_id} already exists"
+      return
+    end
+    self.advocates << new_adv
     puts "\n*** Advocate #{advocate_id} added ***"
   end
 
@@ -41,7 +46,7 @@ class AdvocateManager
         puts "No such junior advocate found #{adv_id}"
         return 
       end
-      puts "Only senior advocate can add practicing state"
+      puts "Only senior advocate can add state"
       print "\nEnter your senior advocate id: "
       sr_adv = find_sr_advocate(gets.strip)
       if sr_adv.nil?
@@ -49,13 +54,25 @@ class AdvocateManager
         return 
       end
     end
-    print "\nEnter practicing state: "
-    state = gets.strip
+    print "\nEnter state: "
+    state = gets.strip.upcase
     sr_adv.add_practicing_state(state, jr_adv)
     puts "\nState #{state} added for #{jr_adv.nil? ? sr_adv.id : jr_adv.id }"
   end
 
   def add_advocate_case
+    print "\nEnter your id: "
+    adv_id = gets.strip
+    adv = find_advocate(adv_id)
+    if adv.nil?
+      puts "No such advocate found"
+      return 
+    end
+    print "Enter case id to be added: "
+    case_id = gets.strip.upcase
+    print "Enter practicing state: "
+    state = gets.strip.upcase
+    adv.add_case(case_id, state)
   end
 
   def reject_case
@@ -66,33 +83,36 @@ class AdvocateManager
     sr_advocates = advocates.select { |adv| adv.sr_advocate.nil? }
     sr_advocates.each do |adv|
       adv.print_info
-      # Printing 1 level nested juniors only
       adv.juniors(advocates).each do |jr_adv|
         jr_adv.print_info("  - ")
       end
     end
   end
 
-  def display_all_cases_in_state(state)
+  def display_all_cases_in_state
+    print "\nEnter state name: "
+    state_name = gets.strip.upcase
+    result = {}
+    advocates.map {|ad| ad.state_wise_cases[state_name] }.compact.flatten.
+      each{|ac| result[ac.advocate_id].nil? ? result[ac.advocate_id] = [ac.id] : result[ac.advocate_id] << ac.id  }
+    result.each {|k, v| puts "Advocate id: #{k}, Cases: #{v.join(', ')}" }
+    ""
   end
 
   private
 
   def find_sr_advocate(adv_id)
     advs = @advocates.select { |adv| adv.id.downcase == adv_id.downcase && adv.sr_advocate.nil? }
-    if advs.size > 1
-      puts "Duplicate advocates found with id #{adv_id}\nexiting..."
-      exit
-    end
     advs.first
   end
 
   def find_jr_advocate(adv_id)
     advs = @advocates.select { |adv| adv.id.downcase == adv_id.downcase && !adv.sr_advocate.nil? }
-    if advs.size > 1
-      puts "Duplicate advocates found with id #{adv_id}\nexiting..."
-      exit
-    end
+    advs.first
+  end
+
+  def find_advocate(adv_id)
+    advs = @advocates.select { |adv| adv.id.downcase == adv_id.downcase }
     advs.first
   end
 
