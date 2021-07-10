@@ -9,8 +9,12 @@ class Advocate
   end
 
   def print_info(delimeter = "")
-    puts "#{delimeter}Advocate id: #{id}"
-    puts "#{delimeter}Practicing states: #{states.to_a.join(', ')}"
+    puts "\n#{delimeter}Advocate id: #{id}"
+    print "\n#{delimeter}Practicing states: #{states.to_a.join(', ')}"
+    print("\n#{delimeter}Rejected cases: ")
+    cases_by_status('rejected').each {|ac| print("Case id: #{ac.id}, State: #{ac.state} ")}
+    print("\n#{delimeter}Practicing cases: ")
+    cases_by_status('active').each {|ac| print("Case id: #{ac.id}, State: #{ac.state} ")}
   end
 
   def juniors(advocates = [])
@@ -31,9 +35,19 @@ class Advocate
       puts "This case is already being practiced in state #{old_case[0].state} state"
       return
     end
-    new_case = AdvocateCase.new(case_id, id)
+    new_case = AdvocateCase.new(case_id, id, state_name)
     self.state_wise_cases[state_name].nil? ? self.state_wise_cases[state_name] = [new_case] : self.state_wise_cases[state_name] << new_case
     puts "\nCase #{case_id} added under #{state_name} state"
+  end
+
+  def reject_case(adv_case)
+    adv_case.reject(id)
+  end
+
+  private
+
+  def cases_by_status(status)
+    state_wise_cases.values.flatten.select {|ac| ac.status == status }
   end
 
 end

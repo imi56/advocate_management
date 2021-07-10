@@ -36,24 +36,8 @@ class AdvocateManager
   end
 
   def add_advocate_state
-    print "\nEnter your id: "
-    adv_id = gets.strip
-    sr_adv = find_sr_advocate(adv_id)
-    # if adv is sr then its sr_advocate attr should be nil
-    if sr_adv.nil?
-      jr_adv = find_jr_advocate(adv_id)
-      if jr_adv.nil?
-        puts "No such junior advocate found #{adv_id}"
-        return 
-      end
-      puts "Only senior advocate can add state"
-      print "\nEnter your senior advocate id: "
-      sr_adv = find_sr_advocate(gets.strip)
-      if sr_adv.nil?
-        puts "No such senior advocate found"
-        return 
-      end
-    end
+    sr_adv, jr_adv = find_sr_jr_advocates
+    return if sr_adv.nil?
     print "\nEnter state: "
     state = gets.strip.upcase
     sr_adv.add_practicing_state(state, jr_adv)
@@ -76,6 +60,16 @@ class AdvocateManager
   end
 
   def reject_case
+    sr_adv, jr_adv = find_sr_jr_advocates
+    return if sr_adv.nil?
+    print "\nEnter case id to be rejected: "
+    case_id = gets.strip.upcase
+    adv_case = find_case(case_id)
+    if adv_case.nil?
+      puts "No such case found"
+      return
+    end
+    sr_adv.reject_case(adv_case)
   end
 
   def display_all_advocates
@@ -114,6 +108,32 @@ class AdvocateManager
   def find_advocate(adv_id)
     advs = @advocates.select { |adv| adv.id.downcase == adv_id.downcase }
     advs.first
+  end
+
+  def find_sr_jr_advocates
+    print "\nEnter your id: "
+    adv_id = gets.strip
+    sr_adv = find_sr_advocate(adv_id)
+    # if adv is sr then its sr_advocate attr should be nil
+    if sr_adv.nil?
+      jr_adv = find_jr_advocate(adv_id)
+      if jr_adv.nil?
+        puts "No such junior advocate found #{adv_id}"
+        return 
+      end
+      puts "Only senior advocate can perform this action"
+      print "\nEnter senior advocate id: "
+      sr_adv = find_sr_advocate(gets.strip)
+      if sr_adv.nil?
+        puts "No such senior advocate found"
+        return 
+      end
+    end
+    return sr_adv, jr_adv
+  end
+
+  def find_case(case_id)
+    advocates.map {|adv| adv.state_wise_cases.values}.flatten.select{|ac| ac.id == case_id }.first
   end
 
 end
